@@ -192,7 +192,7 @@ var events = AllEvents{
 
 
 //EVENTS
-func createEvents(w http.ResponseWriter, r *http.Request) {
+func getEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(events)
 }
@@ -208,3 +208,39 @@ func getOneEvent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+type SimpleSpots struct {
+	SurfBreak []string `json:"surfBreak"`
+	Address string `json:"address"`
+}
+
+//SUMMARY SPOTS LIST
+func getSimpleSpotsList(w http.ResponseWriter, r *http.Request) {
+	var simpleSpotsList []SimpleSpots
+
+	for _, singleEvent := range events.Records {
+		spotsListInfos := SimpleSpots{
+			SurfBreak: singleEvent.Fields.SurfBreak,
+			Address: singleEvent.Fields.Address,
+		}
+		simpleSpotsList = append(simpleSpotsList, spotsListInfos)
+	}
+	json.NewEncoder(w).Encode(simpleSpotsList)
+}
+
+func getSimpleSpot(w http.ResponseWriter, r *http.Request) {
+	eventID := mux.Vars(r)["id"]
+
+	for _, singleEvent := range events.Records {
+		if singleEvent.ID == eventID {
+			oneSpotInfos := SimpleSpots{
+				SurfBreak: singleEvent.Fields.SurfBreak,
+				Address: singleEvent.Fields.Address,
+			}
+			json.NewEncoder(w).Encode(oneSpotInfos)
+			return
+		}
+	}
+
+}
+
